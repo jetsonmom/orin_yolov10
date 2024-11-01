@@ -1,6 +1,6 @@
 #한글로 카운트 결과 파일은  output_filename = f'detected_{now.strftime("%Y%m%d_%H%M%S")}.mp4'
 import yt_dlp
-from ultralytics import YOLO
+from ultralytics import YOLOv10  # YOLO를 YOLOv10으로 변경
 import cv2
 import os
 import time
@@ -36,13 +36,12 @@ def put_text(img, text, position, font_size=32, font_color=(255,255,255)):
     draw.text(position, text, font=font, fill=font_color)
     return np.array(img_pil)
 
-def download_and_process_video(url, model_name='yolov8n.pt', save_video=True):
+def download_and_process_video(url, save_video=True):  # model_name 파라미터 제거
     """
     YouTube 영상을 다운로드하고 객체를 감지하는 함수
     
     Args:
         url (str): YouTube 영상 URL
-        model_name (str): 사용할 YOLO 모델 이름
         save_video (bool): 처리된 영상 저장 여부
     """
     try:
@@ -65,8 +64,8 @@ def download_and_process_video(url, model_name='yolov8n.pt', save_video=True):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
-        print("YOLO 모델 로딩 중...")
-        model = YOLO(model_name)
+        print("YOLOv10 모델 로딩 중...")  # 메시지 수정
+        model = YOLOv10.from_pretrained('jameslahm/yolov10n')  # YOLOv10 모델 로드
         
         # 비디오 캡처 객체 생성
         cap = cv2.VideoCapture(video_path)
@@ -92,12 +91,13 @@ def download_and_process_video(url, model_name='yolov8n.pt', save_video=True):
             if not success:
                 break
             
-            # 객체 감지 수행
-            results = model.predict(source=frame, classes=[0, 3], conf=0.3)
+            # 객체 감지 수행 (person=0, car=2, motorcycle=3)
+            results = model.predict(source=frame, classes=[0, 2, 3], conf=0.3)  # car 클래스 추가
             
             # 객체 수 계산
             boxes = results[0].boxes
             person_count = len([box for box in boxes if box.cls == 0])
+            car_count = len([box for box in boxes if box.cls == 2])      # 자동차 카운트 추가
             motorcycle_count = len([box for box in boxes if box.cls == 3])
             
             # 결과 시각화
@@ -108,7 +108,7 @@ def download_and_process_video(url, model_name='yolov8n.pt', save_video=True):
             
             # 정보 표시를 위한 반투명 배경
             overlay = annotated_frame.copy()
-            cv2.rectangle(overlay, (5, 5), (250, 90), (0, 0, 0), -1)
+            cv2.rectangle(overlay, (5, 5), (250, 125), (0, 0, 0), -1)  # 높이 증가
             cv2.addWeighted(overlay, 0.6, annotated_frame, 0.4, 0, annotated_frame)
             
             # 한글 텍스트 추가
@@ -120,10 +120,19 @@ def download_and_process_video(url, model_name='yolov8n.pt', save_video=True):
                 font_color=(0, 255, 0)
             )
             
+            # 자동차 카운트 텍스트 추가
+            annotated_frame = put_text(
+                annotated_frame,
+                f"자동차: {car_count}대",
+                (10, 50),
+                font_size=30,
+                font_color=(255, 255, 0)  # 노란색
+            )
+            
             annotated_frame = put_text(
                 annotated_frame,
                 f"오토바이: {motorcycle_count}대",
-                (10, 50),
+                (10, 85),
                 font_size=30,
                 font_color=(0, 255, 255)
             )
