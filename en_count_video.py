@@ -1,16 +1,16 @@
+
 import yt_dlp
-from ultralytics import YOLO
+from ultralytics import YOLOv10  # YOLO를 YOLOv10으로 변경
 import cv2
 import os
 import time
 
-def download_and_process_video(url, model_name='yolov8n.pt'):
+def download_and_process_video(url):  # model_name 파라미터 제거
     """
     YouTube 영상을 다운로드하고 객체를 감지하는 함수
     
     Args:
         url (str): YouTube 영상 URL
-        model_name (str): 사용할 YOLO 모델 이름
     """
     try:
         # 임시 파일명 생성 (timestamp 사용)
@@ -28,8 +28,8 @@ def download_and_process_video(url, model_name='yolov8n.pt'):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
-        print("Loading YOLO model...")
-        model = YOLO(model_name)
+        print("Loading YOLOv10 model...")  # 메시지 수정
+        model = YOLOv10.from_pretrained('jameslahm/yolov10n')  # YOLOv10 모델 로드
         
         # 비디오 캡처 객체 생성
         cap = cv2.VideoCapture(video_path)
@@ -45,12 +45,13 @@ def download_and_process_video(url, model_name='yolov8n.pt'):
             if not success:
                 break
             
-            # 객체 감지 수행
-            results = model.predict(source=frame, classes=[0, 3], conf=0.3)  # person=0, motorcycle=3
+            # 객체 감지 수행 (person=0, car=2, motorcycle=3)
+            results = model.predict(source=frame, classes=[0, 2, 3], conf=0.3)  # car 클래스 추가
             
             # 객체 수 계산
             boxes = results[0].boxes
             person_count = len([box for box in boxes if box.cls == 0])
+            car_count = len([box for box in boxes if box.cls == 2])      # 자동차 카운트 추가
             motorcycle_count = len([box for box in boxes if box.cls == 3])
             
             # 결과 시각화
@@ -58,15 +59,17 @@ def download_and_process_video(url, model_name='yolov8n.pt'):
             
             # 정보 표시를 위한 반투명 배경
             overlay = annotated_frame.copy()
-            cv2.rectangle(overlay, (5, 5), (250, 80), (0, 0, 0), -1)
+            cv2.rectangle(overlay, (5, 5), (250, 115), (0, 0, 0), -1)  # 높이 증가
             cv2.addWeighted(overlay, 0.6, annotated_frame, 0.4, 0, annotated_frame)
             
-            # 텍스트 추가 (영문으로 변경)
+            # 텍스트 추가
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(annotated_frame, f'Person: {person_count}', 
                        (10, 35), font, 1, (0, 255, 0), 2)
+            cv2.putText(annotated_frame, f'Car: {car_count}', 
+                       (10, 70), font, 1, (255, 255, 0), 2)  # 노란색
             cv2.putText(annotated_frame, f'Bike: {motorcycle_count}', 
-                       (10, 70), font, 1, (0, 255, 255), 2)
+                       (10, 105), font, 1, (0, 255, 255), 2)
             
             # 화면에 표시
             cv2.imshow("Object Detection", annotated_frame)
