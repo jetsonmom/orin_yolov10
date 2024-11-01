@@ -1,6 +1,7 @@
 # 한글로 카운트, 영상 저장, 실행후 저장한 영상 삭제, 결과 영상 보존
+# 한글로 카운트, 영상 저장, 실행후 저장한 영상 삭제, 결과 영상 보존
 import yt_dlp
-from ultralytics import YOLO
+from ultralytics import YOLOv10  # YOLO를 YOLOv10으로 변경
 import cv2
 import os
 import time
@@ -29,13 +30,12 @@ def put_korean_text(img, text, position, font_size=32, font_color=(255,255,255))
     draw.text(position, text, font=font, fill=font_color)
     return np.array(img_pil)
 
-def download_and_process_video(url, model_name='yolov8n.pt'):
+def download_and_process_video(url):  # model_name 파라미터 제거
     """
     YouTube 영상을 다운로드하고 객체를 감지하는 함수
     
     Args:
         url (str): YouTube 영상 URL
-        model_name (str): 사용할 YOLO 모델 이름
     """
     try:
         # video 폴더 생성
@@ -58,8 +58,8 @@ def download_and_process_video(url, model_name='yolov8n.pt'):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         
-        print("YOLO 모델 로딩 중...")
-        model = YOLO(model_name)
+        print("YOLOv10 모델 로딩 중...")
+        model = YOLOv10.from_pretrained('jameslahm/yolov10n')  # YOLOv10 모델 로드
         
         # 비디오 캡처 객체 생성
         cap = cv2.VideoCapture(video_path)
