@@ -159,11 +159,7 @@ if video_path:
    - 화면 좌상단에 감지된 사람 수를 표시합니다
    - 'q' 키를 누르면 종료됩니다
 
-추가 기능이 필요하시다면 말씀해 주세요! 예를 들어:
-- 특정 영역에서만 카운트하기
-- 시간대별 사람 수 기록하기
-- 다른 객체(차량 등)도 함께 카운트하기
-등을 추가할 수 있습니다.
+
 
 (base) orin@orin-desktop:~$ conda activate yolov10
 (yolov10) orin@orin-desktop:~$ python3 video1.py
