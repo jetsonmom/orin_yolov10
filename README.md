@@ -31,12 +31,12 @@ source ~/.bashrc
 conda --version
 yolov10 환경을 생성하고 base에서 변경하는 방법을 알려드리겠습니다:
 
-1. 먼저 yolov10 환경을 생성합니다:
+4. 먼저 yolov10 환경을 생성합니다:
 ```bash
 conda create -n yolov10 python=3.9
 ```
 
-2. 생성 후 'yolov10' 환경으로 전환하려면:
+5. 생성 후 'yolov10' 환경으로 전환하려면:
 ```bash
 conda activate yolov10
 ```
@@ -55,13 +55,13 @@ conda deactivate
 
 requirements.txt 파일이 현재 디렉토리에 없어서 발생한 오류입니다. YOLOv10을 설치하시려는 것 같은데, 먼저 프로젝트 디렉토리를 만들고 필요한 파일들을 준비해야 합니다.
 
-1. 먼저 프로젝트 디렉토리를 만들고 이동합니다:
+6. 먼저 프로젝트 디렉토리를 만들고 이동합니다:
 ```bash
 mkdir yolov10
 cd yolov10
 ```
 
-2. 필요한 의존성 패키지들을 직접 설치합니다 (requirements.txt 파일 대신): 
+7. 필요한 의존성 패키지들을 직접 설치합니다 (requirements.txt 파일 대신): 
 ```bash
 pip install ultralytics
 pip install torch torchvision 
@@ -76,7 +76,7 @@ pip install tqdm matplotlib seaborn
 
 네, YouTube 영상을 다운로드하고 사람을 인식하고 카운트하는 코드를 만들어보겠습니다.
 
-1. 먼저 YouTube 영상 다운로드를 위한 패키지를 설치합니다:
+8. 먼저 YouTube 영상 다운로드를 위한 패키지를 설치합니다:
 ```bash
 pip install pytube
 pip install --upgrade pytube
@@ -91,7 +91,7 @@ sudo apt-get install fonts-nanum
 
 ```
 
-2. 다음 코드를 실행하면 됩니다:
+9. 다음 코드를 실행하면 됩니다:
 
 ```python
 from pytube import YouTube
